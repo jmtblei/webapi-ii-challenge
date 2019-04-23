@@ -31,10 +31,10 @@ router.get("/:id", (req, res) => {
     const postId = req.params.id;
     dbs.findById(postId)
     .then(response => {
-        if (response) {
-            res.status(200).json(response);
-        } else {
+        if (response.length === 0) {
             res.status(404).json({ error: err, message: "The post with the specified ID does not exist." })
+        } else {
+            res.status(200).json(response);
         }
     })
     .catch(err => {
@@ -63,15 +63,17 @@ router.put("/:id", (req, res) => {
     if (properties.title && properties.contents) {
         dbs.update(postId, properties)
         .then(response => {
-            res.status(200).json(response);
+            if (response) {
+                res.status(200).json(response);
+            } else {
+                res.status(404).json({ errorMessage: "The post with the specified ID does not exist." })
+            }
         })
         .catch(err => {
-            res.status(500).json({ error: err,message: "The post information could not be modified." })
+            res.status(500).json({ error: err, message: "The post information could not be modified." })
         })
     } else if (!properties.title || !properties.contents) {
         res.status(400).json({ errorMessage: "Please provide title and contents for the post." })
-    } else {
-        res.status(404).json({ errorMessage: "The post with the specified ID does not exist." })
     }
 });
 
